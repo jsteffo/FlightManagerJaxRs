@@ -5,10 +5,14 @@
  */
 package dto;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author norde_000
  */
+
+@XmlRootElement
 public class PriceDTO {
     private String departureCity;
     private String destinationCity;

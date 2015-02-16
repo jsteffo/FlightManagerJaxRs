@@ -1,5 +1,9 @@
 package dto;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+@XmlRootElement
 public class TicketsForRouteDTO {
 
 	private int price;

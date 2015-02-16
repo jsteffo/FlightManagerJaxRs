@@ -9,6 +9,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import resources.Flight;
 
 
@@ -16,6 +18,8 @@ import resources.Flight;
  *
  * @author norde_000
  */
+
+@XmlRootElement
 public class Route {
     private String departureCity;
     private String destinationCity;

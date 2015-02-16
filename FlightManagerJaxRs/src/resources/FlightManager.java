@@ -8,7 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.activation.MimeType;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
+import dto.FlightPathDTO;
+
+
+@Path("flight")
 public class FlightManager {
 
 	private List <City> cityList = new ArrayList<City>();
@@ -42,6 +51,23 @@ public class FlightManager {
 		cityList.add(new City("Halmstad", flightList));
 	}
 	
+	@GET
+
+	@Path("{from}/{to}")
+	public List<FlightPathDTO> getPossibleRouting(
+			
+			@PathParam("from") String departureCity, 
+			@PathParam("to") String arrivalCity){
+		List <FlightPathDTO> returnList = new ArrayList<FlightPathDTO>();
+		List <Flight> currentFlightList = getPossibleRoutingLocal(departureCity, arrivalCity, LocalDate.MIN);
+		for(Flight f : currentFlightList) {
+			FlightPathDTO dto = new FlightPathDTO();
+			dto.setDeparture(f.getDepartureCity());
+			dto.setDestination(f.getDestinationCity());
+			returnList.add(dto);
+		}
+		return returnList;
+	}
 	
 	private List<Flight> getPossibleRoutingLocal(String departureCity, String destinationCity, LocalDate date){
 		int [] previousArray = new int [1000];
