@@ -3,8 +3,7 @@ package dto;
 public class TicketsForRouteDTO {
 
 	private int price;
-	private String destination;
-	private String departure;
+
 	private int availableTickets;
 
 
