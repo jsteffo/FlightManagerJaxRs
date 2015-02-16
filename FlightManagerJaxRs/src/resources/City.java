@@ -11,6 +11,7 @@ public class City {
 	public City(String name, LinkedList<Flight> flightList){
 		this.flightList = flightList;
 		this.name = name;
+		
 	}
 	
 	public LinkedList<Flight> getFlightList() {
