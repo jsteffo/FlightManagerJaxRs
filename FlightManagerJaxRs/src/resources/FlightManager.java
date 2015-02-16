@@ -8,16 +8,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.activation.MimeType;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import dto.FlightPathDTO;
+import dto.PriceDTO;
+import dto.TicketsForRouteDTO;
 
 
-@Path("flight")
+
+
+
+
+@Path("/flight")
 public class FlightManager {
 
 	private List <City> cityList = new ArrayList<City>();
@@ -32,7 +41,7 @@ public class FlightManager {
 		flightList.add(new Flight("Stockholm", "Malmö", LocalDate.of(2015, 2, 1), 55, 4, 2));
 		flightList.add(new Flight("Stockholm", "Abisko", LocalDate.of(2015, 5, 1), 55, 4, 3));
 		cityList.add(new City("Stockholm", flightList));
-
+		
 		flightList = new LinkedList<Flight>();
 		flightList.add(new Flight("Göteborg", "Halmstad", LocalDate.of(2015, 1, 1), 55, 4, 4));
 		flightList.add(new Flight("Göteborg", "Visby", LocalDate.of(2015, 4, 1), 55, 4, 5));
@@ -49,11 +58,12 @@ public class FlightManager {
 		cityList.add(new City("Visby", flightList));
 		flightList = new LinkedList<Flight>();
 		cityList.add(new City("Halmstad", flightList));
+
 	}
 	
 	@GET
-
-	@Path("{from}/{to}")
+	@Path("flightPath/{from}/{to}")
+	//@Produces(MediaType.APPLICATION_XML)
 	public List<FlightPathDTO> getPossibleRouting(
 			
 			@PathParam("from") String departureCity, 
@@ -68,6 +78,91 @@ public class FlightManager {
 		}
 		return returnList;
 	}
+		
+	
+	@GET
+	@Path("flightPath/{from}/{to}/{date}")
+	public TicketsForRouteDTO getTicketsForRoute(
+			@PathParam("from") String departureCity,
+			@PathParam("to") String destinationCity,
+			@PathParam("date") String date){
+		int year = Integer.parseInt(date.split("-")[0]);
+		int month = Integer.parseInt(date.split("-")[1]);
+		int day = Integer.parseInt(date.split("-")[2]);
+		List <Flight> flightList = getPossibleRoutingLocal(departureCity, destinationCity, LocalDate.of(year, month, day));
+		int minAvailableTickets = Integer.MAX_VALUE;
+		int price = 0;
+		for(Flight f : flightList) {
+			if(f.getNumberOfTickets() < minAvailableTickets){
+				minAvailableTickets = f.getNumberOfTickets();
+			}
+			price += f.getPrice();
+		}
+		if(flightList.size() != 0){
+			TicketsForRouteDTO dto = new TicketsForRouteDTO();
+			dto.setPrice(price);
+			dto.setAvailableTickets(minAvailableTickets);
+			return dto;	
+		}
+		return null;
+	}
+	@GET
+	@Path("ticket")
+	public List<PriceDTO> outputPrice(){
+		List<PriceDTO> priceList = new ArrayList<>();
+		for(City c : cityList){
+			for(Flight f : c.getFlightList()){
+				PriceDTO dto = new PriceDTO();
+				dto.setDepartureCity(f.getDepartureCity());
+				dto.setDestinationCity(f.getDestinationCity());
+				dto.setPrice(f.getPrice());
+				priceList.add(dto);
+			}
+		}
+		return priceList;
+	}
+	
+	//Nedan kommer ej fungera med vanliga request i browsern då förväntar POST
+	@POST
+	@Path("booking/{from}/{to}")
+	public Response bookTicket(
+			@FormParam("creditCardnbr") String creditCardnbr,
+			@PathParam("from") String departureCity, 
+			@PathParam("to") String destinationCity) {
+		
+		List<Flight> flightsToBook = getPossibleRoutingLocal(departureCity, destinationCity, LocalDate.MIN); 
+		boolean isTicketsLeft=true;
+		String returnMessage="";
+		Flight tempFlight;
+		if(flightsToBook.isEmpty()){
+			returnMessage = "There is no route between "+departureCity+" and "+destinationCity;
+			return Response.status(400).entity(returnMessage).build();
+		}
+
+		// loopa igenom alla som ska bokas och kolla om ngn av de har slut på biljetter
+		for (int i = 0; i < flightsToBook.size(); i++) {
+			int tempTickets = flightsToBook.get(i).getNumberOfTickets();
+
+			if(tempTickets < 1){
+				isTicketsLeft = false;
+				tempFlight = flightsToBook.get(i);
+				returnMessage = "Vi kunde tyvärr inte boka dina biljetter "
+						+ "eftersom att flighten mellan "+tempFlight.getDepartureCity()+" och "
+								+ ""+tempFlight.getDestinationCity()+ " har slut på biljetter";
+			}
+		}
+		if (isTicketsLeft) {
+			// här loopar vi igenom igen och faktiskt bokar alla
+			for (int j = 0; j < flightsToBook.size(); j++) {
+				int tempTickets = flightsToBook.get(j).getNumberOfTickets();
+				flightsToBook.get(j).setNumberOfTickets(tempTickets - 1);
+			}
+			returnMessage = "biljett mellan "+departureCity+" och "+destinationCity+" är bokad";
+		}
+
+		return Response.status(200).entity(returnMessage).build();
+	}
+	
 	
 	private List<Flight> getPossibleRoutingLocal(String departureCity, String destinationCity, LocalDate date){
 		int [] previousArray = new int [1000];
