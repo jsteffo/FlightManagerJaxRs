@@ -23,14 +23,6 @@ public class Route {
     private LocalTime destinationTime;
     private Duration routeTime;
     private ArrayList<Flight> flights; 
-    public Route(ArrayList<Flight> flights){
-        this.flights = flights;
-        this.departureCity = flights.get(0).getDepartureCity();
-        this.destinationCity = flights.get(flights.size()-1).getDestinationCity();
-   //     this.departureTime = flights.get(0).getDepartureTime();
-  //      this.destinationTime = flights.get(flights.size()-1).getEstimatedArrival();
-        this.routeTime = Duration.between(departureTime,destinationTime);
-    }
 
     /**
      * @return the departureCity

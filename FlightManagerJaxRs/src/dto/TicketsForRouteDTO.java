@@ -10,11 +10,6 @@ public class TicketsForRouteDTO {
 
 
 
-	public TicketsForRouteDTO(int price, int availableTickets) {
-
-		this.price = price;
-		this.availableTickets = availableTickets;
-	}
 	public int getPrice() {
 		return price;
 	}

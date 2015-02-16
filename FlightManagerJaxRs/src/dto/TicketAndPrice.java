@@ -12,10 +12,6 @@ package dto;
 public class TicketAndPrice {
     private int numberOfTickets;
     private int priceOfTicket;
-    public TicketAndPrice(int numberOfTickets,int priceOfTicket){
-        this.numberOfTickets = numberOfTickets;
-        this.priceOfTicket = priceOfTicket;
-    }
 
     /**
      * @return the numberOfTickets

@@ -14,12 +14,7 @@ public class PriceDTO {
     private String destinationCity;
     private int price;
 
-    public PriceDTO(String departureCity, String destinationCity,int price){
-        this.departureCity = departureCity;
-        this.destinationCity = destinationCity;
-        this.price = price;
-        
-    }
+
     /**
      * @return the departureCity
      */
